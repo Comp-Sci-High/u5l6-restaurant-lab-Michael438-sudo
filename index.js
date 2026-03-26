@@ -1,48 +1,98 @@
 // Task 1: Set up server [1 pt]
 // Install + import express and mongoose 
- 
-
+const express = require("express");
+const mongoose = require("mongoose");
 
 // Create app instance
+const app = express();
+
+// Middleware to process JSON
+app.use(express.json());
+
+// Logging middleware (already given)
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
+
+// Async function to start server
+async function startServer() {
+  
+// Connect to MongoDB (replace with YOUR SRV string)
+    await mongoose.connect("mongodb+srv://SE12:CSH2026@cluster0.cev1a0w.mongodb.net/?appName=Cluster0");
+
+    // Start server
+    app.listen(3000, () => {
+      console.log(3000);
+    });
+  }
+// Call startServer
+startServer();
 
 
-// Add middleware to process JSON request body
+// Task 2: Define schema [2 pts]
+const menuItemSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true    
+  },
+  cost: {
+    type: Number,
+    required: true
+  },
+  category: {
+    type: String,
+  },
+
+});
 
 
-// Write an async startServer function that
-// - connects to MongoDB with your SRV string with a database called restaurant
-// - starts the server at port 3000
-// - DO NOT ADD ANY ITEMS YET
+// Task 3: Define model [1 pt]
+const MenuItem = mongoose.model("MenuItem", menuItemSchema);
 
 
-// call startServer
+// Task 4: POST /menu/test [2 pts]
+app.post("/menu/test", async (req, res) => {
+  
+    const testItem = new MenuItem({
+      name: "Test Burger",
+      cost: 4.99,
+      category: "Fast Food",
+    });
+
+    await testItem.save();
+
+  
+});
 
 
-// Task 2: Define the schema + model for a menu item [2 pts]
-// It should have name, cost, and at least 2 more attributes of your choice
-// You need at least 1 required, 1 unique, and 1 default that makes sense
+// Task 5: GET /menu [2 pts]
+app.get("/menu", async (req, res) => {
+
+    const items = await MenuItem.find();
+    res.json(items);
+   
+});
+
+
+// Task 6: GET /menu/value [2 pts]
+app.get("/menu/value", async (req, res) => {
+  
+    const items = await MenuItem.find({ cost: { $lt: 5 } });
+    res.json(items);
+  });
 
 
 
-// Task 3: Define the model for the MenuItem [1 pt]
+// Task 7: POST /menu/new [2 pts]
+app.post("/menu/new", async (req, res) => {
 
+    const testItem = new MenuItem({
+      name: "Test Burger",
+      cost: 4.99,
+      category: "Fast Food",
+    });
 
-// Task 4: Define a POST route at /menu/test that adds a test menu item to the database [2 pt]
-// The values for the menu item should be written in the code, NOT in Postman
-// Test this route from Postman (make public!) and make sure your test item is in the DB
-
-
-
-// Task 5: Define a GET route at /menu that returns all menu items as a JSON [2 pt]
-
-
-
-// Task 6: Define a GET route at /menu/value that returns only menu items that cost less than 5 [2 pts]
-
-
-
-// Task 7: Define a POST route at /menu/new that adds a new menu item [2 pts]
-// The values for the menu item should come from the request body
-// Test this route from Postman (make public!) and make sure the user's item is in the DB
-
-
+    await testItem.save();
+});
